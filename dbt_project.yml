@@ -38,3 +38,13 @@ models:
         +materialized: table
     staging:
       +materialized: view
+  sql_modularity_course:
+    legacy:
+      +materialized: view
+    marts:
+      +materialized: table
+    staging:
+      +materialized: view
+
+
+
