@@ -1,54 +1,19 @@
-with base_orders as (
-    
-    select * from {{ ref('orders') }}  
-
-),
-
-base_customers as (
-
-    select * from {{ ref('customers') }}
-
-),
-
-base_payments as (
-
-    select * from {{ ref('payments') }}
-
-),
-    
---- Staging
-
-payments as (
-    select 
-        *,
-        orderid as order_id, 
-        max(created) as payment_finalized_date, 
-        sum(amount) / 100.0 as total_amount_paid
-    from base_paymentswhere status <> 'fail'
-    group by 1
-)
---- CTE or Intermediate
-
---- Final
-
-
-
-paid_orders as (
+with paid_orders as (
     
     select 
-        orders.id as order_id,
-        orders.user_id	as customer_id,
-        orders.order_date as order_placed_at,
-        orders.status as order_status,
+        orders.order_id,
+        orders.customer_id,
+        orders.order_placed_at,
+        orders.order_status,
         p.total_amount_paid,
         p.payment_finalized_date,
-        c.first_name    as customer_first_name,
-        c.last_name as customer_last_name
-    from base_orders as orders
+        c.customer_first_name,
+        c.customer_last_name
+    from {{ ref('stg_orders') }} as orders
     left join {{ ref('stg_payments') }} p 
-    on orders.id = p.order_id
-    left join base_customers c 
-    on orders.user_id = c.id 
+    on orders.order_id = p.order_id
+    left join {{ ref('stg_customers') }} c 
+    on orders.customer_id = c.customer_id 
     
 ),
 
@@ -56,16 +21,13 @@ paid_orders as (
 customer_orders as (
 
     select 
-        c.id as customer_id,
-
-        min(order_date) as first_order_date,
-
-        max(order_date) as most_recent_order_date,
-
-        count(orders.id) as number_of_orders
-    from base_customers c 
-    left join base_orders as orders
-    on orders.user_id = c.id 
+        c.customer_id,
+        min(orders.order_placed_at) as first_order_date,
+        max(orders.order_placed_at) as most_recent_order_date,
+        count(orders.order_id) as number_of_orders
+    from {{ ref('stg_customers') }} c 
+    left join {{ ref('stg_orders') }} as orders
+    on orders.customer_id = c.customer_id 
     group by 1
 
 ),
@@ -75,7 +37,6 @@ total_order_value as (
 
     select
         p.order_id,
-
         sum(t2.total_amount_paid) as clv_bad
     from paid_orders p
     left join paid_orders t2 
@@ -89,25 +50,20 @@ total_order_value as (
 final as (
     select
         p.*,
-
         row_number() 
             over (
             order by p.order_id
         ) as transaction_seq,
-
         row_number() 
             over (
             partition by customer_id order by p.order_id
         ) as customer_sales_seq,
-
         case 
         when c.first_order_date = p.order_placed_at
         then 'new'
         else 'return' 
         end as nvsr,
-
         x.clv_bad as customer_lifetime_value,
-
         c.first_order_date as fdos
     from paid_orders p
     left join customer_orders as c using (customer_id)

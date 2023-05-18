@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: stg_customers
+  - name: stg_customer
     description: 1 unique customer per row
     columns:
       - name: customer_id
@@ -10,7 +10,7 @@ models:
           - unique
           - not_null
 
-  - name: stg_orders
+  - name: stg_order
     description: one order per customer
     columns:
       - name: order_id
