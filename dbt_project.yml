@@ -37,7 +37,7 @@ models:
       marts:
         +materialized: table
       legacy:
-        +materialized: view
+        +materialized: table
       staging:
         +materialized: view
 

@@ -57,7 +57,7 @@ final as (
             partition by customer_id order by p.order_id
         ) as customer_sales_seq,
         case 
-        when c.first_order_date = p.order_placed_at
+        when c.first_order_date = p.order_placed_at 
         then 'new'
         else 'return' 
         end as nvsr,

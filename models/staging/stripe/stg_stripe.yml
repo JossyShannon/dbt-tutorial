@@ -13,7 +13,7 @@ models:
         tests:
           - relationships:
               field: order_id
-              to: ref('stg_orders')
+              to: ref('stg_order')
       - name: payment_method
         description: '{{ doc("payment_method") }}'
         tests:
