@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: stg_payment
+    description: one order per payment
+    columns:
+      - name: payment_id
+        description: Primary key
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - relationships:
+              field: order_id
+              to: ref('stg_order')
+      - name: payment_method
+        description: '{{ doc("payment_method") }}'
+        tests:
+          - accepted_values:
+              values:
+                - "credit_card"
+                - "coupon"
+                - "gift_card"
+                - "bank_transfer"
+      
