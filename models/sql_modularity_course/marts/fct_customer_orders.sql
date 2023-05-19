@@ -33,18 +33,6 @@ customer_orders as (
 ),
 
 
-total_order_value as (
-
-    select
-        order_id,
-        sum(total_amount_paid) as clv_bad
-    from paid_orders 
-    group by 1
-    order by order_id
-    
-), 
-
-
 final as (
     select
         p.*,
@@ -61,12 +49,13 @@ final as (
         then 'new'
         else 'return' 
         end as nvsr,
-        x.clv_bad as customer_lifetime_value,
+        sum(total_amount_paid) over (
+            partition by p.customer_id
+            order by p.order_id
+        ) as customer_lifetime_value,
         c.first_order_date as fdos
     from paid_orders p
     left join customer_orders as c using (customer_id)
-    left outer join total_order_value x 
-    on x.order_id = p.order_id
     order by order_id
 
 )

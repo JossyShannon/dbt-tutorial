@@ -1,5 +1,5 @@
-with souce_data as (
-    select * from {{ source('jaffle_shop', 'customers') }}
+with source_data as (
+    select * from {{ source('jocelyn_shannon', 'customers') }}
 ),
 
 transformed as (

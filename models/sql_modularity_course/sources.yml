@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name:
+  - name: jocelyn_shannon
     database: SANDBOX
     tables:
       - name: customers
