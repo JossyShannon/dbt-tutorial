@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: object_table
+    tests:
+      - object_construct:
+          source_model: source('testing', 'stg_test')
+          column_name: 'object_test'
+          key_dict:
+            age:
+              value: 'age::string'
+              quote: True
+            name: 
+              value: 'name'
+              quote: True
+            status:
+              value: 'status'
+              quote: True
+            record_source:
+              value: 'source'
+              quote: False
+          keep_null: True
+
+sources:
+  - name: testing
+    database: SANDBOX
+    schema: JOCELYN_SHANNON
+    tables:
+      - name: stg_test
+      - name: stg_test_hash
+        columns:
+          - name: name_hash
+            tests:
+              - relationships:
+                  to: source('testing', 'stg_test')
+                  field: name
+          - name: hash_diff
+            tests:
+              - relationships:
+                  field: MD5(CONCAT(age_str, '||', status))
+                  to: source('testing', 'stg_test')
+          - name: record_source
+            tests:
+              - accepted_values:
+                  values: ["source"]
