@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: dim_customer
+    tests:
+      - relationships:
+          field: CUSTOMER_ID
+          to: ref('stg_customer')
+  - name: fct_orders
+    tests:
+      - relationships:
+          field: ORDER_ID
+          to: ref('stg_order')
+  - name: int_orders_pivoted
+    tests:
+      - relationships:
+          field: ORDER_ID
+          to: ref('stg_payment')

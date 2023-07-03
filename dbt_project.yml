@@ -33,7 +33,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 models:
   jaffle_shop:
+    +required_tests: {"unique.*": 1}
     sql_modularity_course:
+      +required_tests: 
       marts:
         +materialized: table
       legacy:
@@ -42,6 +44,7 @@ models:
         +materialized: view
 
     marts:
+      +required_tests: {"relationships": 1}
       core:
         +materialized: table
     staging:
